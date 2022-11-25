@@ -8,7 +8,11 @@
     <Authors>Revan Rohith D</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
+    <RepositoryUrl>https://github.com/imdrr30/ChromiumHTMLToPDF</RepositoryUrl>
+    <Description>Generate PDF or PNG from HTML using Chromium Engine.</Description>
+    <PackageProjectUrl>https://github.com/imdrr30/ChromiumHTMLToPDF</PackageProjectUrl>
+    <PackageTags>Htmltopdf,chrome,chromium,htmltoimage,htmltopng</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
