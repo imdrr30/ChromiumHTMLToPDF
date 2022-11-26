@@ -19,7 +19,7 @@ namespace ChromiumHTMLToPDF
             pdfArgs = new List<string>();
 
         }
-        public static void AddOption(string arg)
+        public void AddOption(string arg)
         {
             pdfArgs.Add(arg);
         }
@@ -37,7 +37,7 @@ namespace ChromiumHTMLToPDF
             File.WriteAllText(fileName, htmlContent);
         }
 
-        private static void AddDefaultArguments()
+        private void AddDefaultArguments()
         {
             AddOption("--headless");
             AddOption("--disable-gpu");
@@ -45,7 +45,7 @@ namespace ChromiumHTMLToPDF
 
         }
 
-        private static byte[] CreatePDFFromHTML(string htmlContent, string fileName)
+        private byte[] CreatePDFFromHTML(string htmlContent, string fileName)
 
         {
             var htmlLocation = Path.Combine(workingDir, fileName + ".html");
