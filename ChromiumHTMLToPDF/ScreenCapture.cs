@@ -8,12 +8,14 @@ namespace ChromiumHTMLToPDF
     public class ScreenCapture
     {
 
-        public static string chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
-        public static string workingDir = ConverterExecutable.GetWorkingDir();
+        public static string chromium;
+        public static string workingDir;
         private static List<string> pngArgs = new List<string>();
 
         public ScreenCapture()
         {
+            chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
+            workingDir = ConverterExecutable.GetWorkingDir();
             pngArgs = new List<string>();
 
         }
@@ -88,7 +90,7 @@ namespace ChromiumHTMLToPDF
         {
             return new ProcessStartInfo
             {
-                FileName = ConverterExecutable.Get().FullConverterExecutableFilename,
+                FileName = chromium,
                 Arguments = GetCommandLineArguments(),
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,

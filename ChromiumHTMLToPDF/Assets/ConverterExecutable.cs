@@ -97,7 +97,7 @@ namespace ChromiumHTMLToPDF.Assets
 
         private static string BundledFilesDirectory()
         {
-            return Path.Combine(Path.GetTempPath(), "ChromiumHTMLToPDF", Version());
+            return Path.Combine(System.IO.Directory.GetCurrentDirectory(), "ChromiumHTMLToPDF", Version());
         }
 
         private static string Version()

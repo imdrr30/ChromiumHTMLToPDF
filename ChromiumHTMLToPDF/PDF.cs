@@ -10,12 +10,14 @@ namespace ChromiumHTMLToPDF
     public class PDF
     {
 
-        public static string chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
-        public static string workingDir = ConverterExecutable.GetWorkingDir();
-        private static List<string> pdfArgs = new List<string>();
+        public static string chromium;
+        public static string workingDir;
+        private static List<string> pdfArgs;
 
         public PDF()
         {
+            chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
+            workingDir = ConverterExecutable.GetWorkingDir();
             pdfArgs = new List<string>();
 
         }
@@ -89,7 +91,7 @@ namespace ChromiumHTMLToPDF
         {
             return new ProcessStartInfo
             {
-                FileName = ConverterExecutable.Get().FullConverterExecutableFilename,
+                FileName = chromium,
                 Arguments = GetCommandLineArguments(),
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
