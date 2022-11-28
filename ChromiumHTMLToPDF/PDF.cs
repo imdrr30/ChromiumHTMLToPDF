@@ -12,82 +12,116 @@ namespace ChromiumHTMLToPDF
 
         public static string chromium;
         public static string workingDir;
+        public bool streamOutput;
         private static List<string> pdfArgs;
 
-        public PDF()
+        public PDF(bool streamOutput=false)
         {
             chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
             workingDir = ConverterExecutable.GetWorkingDir();
             pdfArgs = new List<string>();
+            this.streamOutput = streamOutput;
 
         }
         public void AddOption(string arg)
         {
-            pdfArgs.Add(arg);
+            try
+            {
+                pdfArgs.Add(arg);
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Add Option failed due to "+ex.Message);
+            }
         }
         
         public byte[] From(string htmlContent)
         {
-
-            var tempFileName = Utilities.GetRandomString();
-            return CreatePDFFromHTML(htmlContent, tempFileName);
+            try
+            {
+                var tempFileName = Utilities.GetRandomString();
+                return CreatePDFFromHTML(htmlContent, tempFileName);
+            }catch(Exception ex)
+            {
+                Console.WriteLine("PDF Creation was failed due to " + ex.Message);
+                return null;
+            }
 
         }
         
-        private static void CreateTempHTMLFile(string htmlContent, string fileName)
+        private void CreateTempHTMLFile(string htmlContent, string fileName)
         {
-            File.WriteAllText(fileName, htmlContent);
+            try
+            {
+                File.WriteAllText(fileName, htmlContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Temporary HTML failed to create due to " + ex.Message);
+            }
         }
 
         private void AddDefaultArguments()
         {
             AddOption("--headless");
             AddOption("--disable-gpu");
-            AddOption("--no-sandbox");
-
         }
 
         private byte[] CreatePDFFromHTML(string htmlContent, string fileName)
 
         {
-            var htmlLocation = Path.Combine(workingDir, fileName + ".html");
-            var pdfLocation = Path.Combine(workingDir, fileName + ".pdf");
+            try
+            {
+                var htmlLocation = Path.Combine(workingDir, fileName + ".html");
+                var pdfLocation = Path.Combine(workingDir, fileName + ".pdf");
 
-            CreateTempHTMLFile(htmlContent, htmlLocation);
-            AddDefaultArguments();
-            AddOption("--print-to-pdf=\""+ pdfLocation+ "\"");
-            AddOption(htmlLocation);
+                CreateTempHTMLFile(htmlContent, htmlLocation);
+                AddDefaultArguments();
+                AddOption("--print-to-pdf=\"" + pdfLocation + "\"");
+                AddOption(htmlLocation);
 
 
-            StartConvertionProcess();
+                StartConvertionProcess();
 
-            byte[] pdf = ReadPDF(pdfLocation);
+                byte[] pdf = ReadPDF(pdfLocation);
 
-            DeleteTemporaryFiles(pdfLocation, htmlLocation);
+                DeleteTemporaryFiles(pdfLocation, htmlLocation);
 
-            return pdf;
+                return pdf;
+
+            }catch(Exception ex)
+            {
+                Console.WriteLine("PDF Creation was failed due to " + ex.Message);
+                return null;
+            }
         }
 
-        private static void StartConvertionProcess()
+        private void StartConvertionProcess()
         {
-            var processInfo = GetChromiumProcess();
-            var process = Process.Start(processInfo);
-
-            string output = process.StandardOutput.ReadToEnd();
-            
-            //Console.WriteLine(output);
-            string err = process.StandardError.ReadToEnd();
-            //Console.WriteLine(err);
-            process.WaitForExit();
+            try
+            {
+                var processInfo = GetChromiumProcess();
+                var process = Process.Start(processInfo);
+                if (this.streamOutput)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    Console.WriteLine(output);
+                    string err = process.StandardError.ReadToEnd();
+                    Console.WriteLine(err);
+                }
+                process.WaitForExit();
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Chromium Process was failed to start due to " + ex.Message);
+            }
         }
 
-        private static string GetCommandLineArguments()
+        private string GetCommandLineArguments()
         {
             string args =  string.Join(" ", pdfArgs.ToArray());
             return args;
         }
 
-        private static ProcessStartInfo GetChromiumProcess()
+        private ProcessStartInfo GetChromiumProcess()
         {
             return new ProcessStartInfo
             {
@@ -100,20 +134,45 @@ namespace ChromiumHTMLToPDF
             };
         }
 
-        private static byte[] ReadPDF(string fileName)
+        private byte[] ReadPDF(string fileName)
         {
-            return File.ReadAllBytes(fileName);
+            try
+            {
+                return File.ReadAllBytes(fileName);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Cannot Read the PDF File due to " + ex.Message);
+                return null;
+            }
+            
         }
 
-        private static void DeleteTemporaryFiles(string pdfFile, string htmlFile)
+        private void DeleteTemporaryFiles(string pdfFile, string htmlFile)
         {
-            DeleteFile(htmlFile);
-            DeleteFile(pdfFile);
+            try
+            {
+                DeleteFile(htmlFile);
+                DeleteFile(pdfFile);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Cannot Delete Temporary files due to " + ex.Message);
+            }
+            
         }
 
-        private static void DeleteFile(string fileName)
+        private void DeleteFile(string fileName)
         {
-            File.Delete(fileName);
+            try
+            {
+                File.Delete(fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot Delete Temporary files due to " + ex.Message);
+            }
+            
         }
     }
 }

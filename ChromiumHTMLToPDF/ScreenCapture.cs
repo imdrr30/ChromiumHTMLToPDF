@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using ChromiumHTMLToPDF.Assets;
@@ -10,74 +11,111 @@ namespace ChromiumHTMLToPDF
 
         public static string chromium;
         public static string workingDir;
-        private static List<string> pngArgs = new List<string>();
+        public bool streamOutput;
+        private static List<string> pngArgs;
 
-        public ScreenCapture()
+        public ScreenCapture(bool streamOutput = false)
         {
             chromium = ConverterExecutable.Get().FullConverterExecutableFilename;
             workingDir = ConverterExecutable.GetWorkingDir();
             pngArgs = new List<string>();
+            this.streamOutput = streamOutput;
 
         }
-
         public void AddOption(string arg)
         {
-            pngArgs.Add(arg);
+            try
+            {
+                pngArgs.Add(arg);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Add Option failed due to " + ex.Message);
+            }
         }
 
         public byte[] From(string htmlContent)
         {
-
-            var tempFileName = Utilities.GetRandomString();
-            return CreatePNGFromHTML(htmlContent, tempFileName);
+            try
+            {
+                var tempFileName = Utilities.GetRandomString();
+                return CreatePNGFromHTML(htmlContent, tempFileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Screenshot was failed due to " + ex.Message);
+                return null;
+            }
 
         }
 
-        private static void CreateTempHTMLFile(string htmlContent, string fileName)
+        private void CreateTempHTMLFile(string htmlContent, string fileName)
         {
-            File.WriteAllText(fileName, htmlContent);
+            try
+            {
+                File.WriteAllText(fileName, htmlContent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Temporary HTML failed to create due to " + ex.Message);
+            }
         }
 
         private void AddDefaultArguments()
         {
             AddOption("--headless");
             AddOption("--disable-gpu");
-            AddOption("--no-sandbox");
-
         }
 
         private byte[] CreatePNGFromHTML(string htmlContent, string fileName)
 
         {
-            var htmlLocation = Path.Combine(workingDir, fileName + ".html");
-            var pngLocation = Path.Combine(workingDir, fileName + ".png");
+            try
+            {
+                var htmlLocation = Path.Combine(workingDir, fileName + ".html");
+                var pngLocation = Path.Combine(workingDir, fileName + ".png");
 
-            CreateTempHTMLFile(htmlContent, htmlLocation);
-            AddDefaultArguments();
-            AddOption("--screenshot=\"" + pngLocation+ "\"");
-            AddOption(htmlLocation);
+                CreateTempHTMLFile(htmlContent, htmlLocation);
+                AddDefaultArguments();
+                AddOption("--screenshot=\"" + pngLocation + "\"");
+                AddOption(htmlLocation);
 
 
-            StartConvertionProcess();
+                StartConvertionProcess();
 
-            byte[] png = ReadPNG(pngLocation);
+                byte[] png = ReadPNG(pngLocation);
 
-            DeleteTemporaryFiles(pngLocation, htmlLocation);
+                DeleteTemporaryFiles(pngLocation, htmlLocation);
 
-            return png;
+                return png;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("PNG Creation was failed due to " + ex.Message);
+                return null;
+            }
         }
 
-        private static void StartConvertionProcess()
+        private void StartConvertionProcess()
         {
-            var processInfo = GetChromiumProcess();
-            var process = Process.Start(processInfo);
-
-            string output = process.StandardOutput.ReadToEnd();
-
-            //Console.WriteLine(output);
-            string err = process.StandardError.ReadToEnd();
-            //Console.WriteLine(err);
-            process.WaitForExit();
+            try
+            {
+                var processInfo = GetChromiumProcess();
+                var process = Process.Start(processInfo);
+                if (this.streamOutput)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    Console.WriteLine(output);
+                    string err = process.StandardError.ReadToEnd();
+                    Console.WriteLine(err);
+                }
+                process.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Chromium Process was failed to start due to " + ex.Message);
+            }
         }
 
         private static string GetCommandLineArguments()
@@ -86,7 +124,7 @@ namespace ChromiumHTMLToPDF
             return args;
         }
 
-        private static ProcessStartInfo GetChromiumProcess()
+        private ProcessStartInfo GetChromiumProcess()
         {
             return new ProcessStartInfo
             {
@@ -99,21 +137,45 @@ namespace ChromiumHTMLToPDF
             };
         }
 
-        private static byte[] ReadPNG(string fileName)
+        private byte[] ReadPNG(string fileName)
         {
-            return File.ReadAllBytes(fileName);
+            try
+            {
+                return File.ReadAllBytes(fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot Read the PNG File due to " + ex.Message);
+                return null;
+            }
+
         }
 
-        private static void DeleteTemporaryFiles(string pngFile, string htmlFile)
+        private void DeleteTemporaryFiles(string pngFile, string htmlFile)
         {
-            DeleteFile(htmlFile);
-            DeleteFile(pngFile);
+            try
+            {
+                DeleteFile(htmlFile);
+                DeleteFile(pngFile);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot Delete Temporary files due to " + ex.Message);
+            }
+
         }
 
-        private static void DeleteFile(string fileName)
+        private void DeleteFile(string fileName)
         {
-            File.Delete(fileName);
-        }
+            try
+            {
+                File.Delete(fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Cannot Delete Temporary files due to " + ex.Message);
+            }
 
+        }
     }
 }

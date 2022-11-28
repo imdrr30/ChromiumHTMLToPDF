@@ -13,6 +13,18 @@ namespace ChromiumHTMLToPDFTests
         {
             var pdfCreator = new PDF();
             var pdf = pdfCreator.From(htmlContent);
+            Assert.IsInstanceOfType(pdf, typeof(byte[]));
+            pdfCreator = new PDF();
+            pdf = pdfCreator.From(htmlContent);
+            Assert.IsInstanceOfType(pdf, typeof(byte[]));
+            pdfCreator = new PDF();
+            pdf = pdfCreator.From(htmlContent);
+            Assert.IsInstanceOfType(pdf, typeof(byte[]));
+            pdfCreator = new PDF();
+            pdf = pdfCreator.From(htmlContent);
+            Assert.IsInstanceOfType(pdf, typeof(byte[]));
+            pdfCreator = new PDF();
+            pdf = pdfCreator.From(htmlContent);
 
             Assert.IsInstanceOfType(pdf, typeof(byte[]));
             
